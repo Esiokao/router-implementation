@@ -45,9 +45,9 @@ class CustomRouter {
             const rawParams = hash
                 .substring(hash.indexOf('?') + 1 ? hash.indexOf('?') + 1 : hash.length)
                 .split('&');
-            console.log('🚀 ~ file: index.ts ~ line 52 ~ CustomRouter ~ reload ~ rawParams', rawParams);
             const processed = rawParams.map((paramString) => paramString.split('='));
-            console.log('🚀 ~ file: index.ts ~ line 54 ~ CustomRouter ~ reload ~ processed', processed);
+            if (processed[0][0] === '')
+                processed.shift();
             /* eslint-disable no-param-reassign */
             const params = processed.reduce((accu, curr) => {
                 const [key, value] = curr;
@@ -57,7 +57,6 @@ class CustomRouter {
             /* eslint-enable no-param-reassign */
             this.queryList[path] = params;
             callbackFunc.apply(self, processed);
-            console.log('🚀 ~ file: index.ts ~ line 61 ~ CustomRouter ~ reload ~ params', params);
         }
         else {
             self.go(self.index);
@@ -87,12 +86,16 @@ router.add('/page1', () => {
         routerView.innerHTML = '✨ Page 1 Here !';
 });
 router.add('/page2', () => {
-    var _a;
-    const id = (_a = router.query['/page2'].id) !== null && _a !== void 0 ? _a : '';
+    const query = router.query['/page2'];
     if (routerView)
         routerView.innerHTML = '🌟 Page 2 Here !';
-    if (id && routerView)
-        routerView.innerHTML += `${id}`;
+    if (Object.keys(query).length) {
+        if (routerView) {
+            Object.keys(query).forEach((key) => {
+                routerView.innerHTML += `<p>${key}:${query[key]}</p>`;
+            });
+        }
+    }
 });
 router.setIndex('/page2');
 router.reload();

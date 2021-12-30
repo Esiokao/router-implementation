@@ -1,1 +1,1 @@
-# curious about how router works behind the hood, so 🐱
+# curious about how router works under the hood, so 🐱
