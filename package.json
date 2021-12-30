@@ -5,6 +5,9 @@
   "repository": "https://github.com/Esiokao/router-implementation.git",
   "author": "Esiokao <esiokao@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc -p . && rollup src/index.js -o index.js"
+  },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

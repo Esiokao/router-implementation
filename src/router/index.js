@@ -45,9 +45,9 @@ export default class CustomRouter {
             const rawParams = hash
                 .substring(hash.indexOf('?') + 1 ? hash.indexOf('?') + 1 : hash.length)
                 .split('&');
-            console.log('🚀 ~ file: index.ts ~ line 52 ~ CustomRouter ~ reload ~ rawParams', rawParams);
             const processed = rawParams.map((paramString) => paramString.split('='));
-            console.log('🚀 ~ file: index.ts ~ line 54 ~ CustomRouter ~ reload ~ processed', processed);
+            if (processed[0][0] === '')
+                processed.shift();
             /* eslint-disable no-param-reassign */
             const params = processed.reduce((accu, curr) => {
                 const [key, value] = curr;
@@ -57,7 +57,6 @@ export default class CustomRouter {
             /* eslint-enable no-param-reassign */
             this.queryList[path] = params;
             callbackFunc.apply(self, processed);
-            console.log('🚀 ~ file: index.ts ~ line 61 ~ CustomRouter ~ reload ~ params', params);
         }
         else {
             self.go(self.index);

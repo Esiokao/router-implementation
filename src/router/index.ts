@@ -3,9 +3,7 @@ type CallbackFunc = (...args: []) => void;
 type Routes = Map<Path, CallbackFunc>;
 type KeyOfMap<M extends Map<unknown, unknown>> = M extends Map<infer K, unknown> ? K : never;
 interface QueryList {
-  [path: string]: {
-    [key: string]: string;
-  };
+  [path: string]: Record<string, string>;
 }
 export default class CustomRouter {
   constructor(
@@ -64,6 +62,7 @@ export default class CustomRouter {
 
       const processed = rawParams.map((paramString) => paramString.split('='));
 
+      if (processed[0][0] === '') processed.shift();
       /* eslint-disable no-param-reassign */
       const params = processed.reduce((accu, curr) => {
         const [key, value] = curr;
