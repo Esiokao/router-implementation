@@ -1,19 +1,75 @@
 export default class CustomRouter {
-    constructor(routes = new Map(), currentRoute = '') {
+    constructor(routes = new Map(), currentPath = '', visitedPath = [], index = '', queryList = {}) {
         this.routes = routes;
-        this.currentRoute = currentRoute;
+        this.currentPath = currentPath;
+        this.visitedPath = visitedPath;
+        this.index = index;
+        this.queryList = queryList;
     }
-    route(path, callback) {
-        this.routes.set(path, callback);
+    setIndex(path) {
+        this.index = path;
     }
-    refresh() {
-        this.currentRoute = globalThis.location.hash.slice(1) || '/';
-        const callback = this.routes.get(this.currentRoute);
-        if (callback)
-            callback();
+    get query() {
+        return this.queryList;
+    }
+    go(path) {
+        if (this.routes.has(path)) {
+            this.visitedPath.push(path);
+            this.currentPath = path;
+            globalThis.location.hash = `#${path}`;
+        }
+    }
+    back() {
+        var _a;
+        if (this.visitedPath.length)
+            this.go((_a = this.visitedPath.pop()) !== null && _a !== void 0 ? _a : '');
+    }
+    add(path, callbackFunc) {
+        this.routes.set(path, callbackFunc);
+    }
+    remove(path) {
+        if (this.routes.has(path))
+            this.routes.delete(path);
+    }
+    getCallbackFunc(path) {
+        if (this.routes.has(path))
+            return this.routes.get(path);
+        return undefined;
+    }
+    reload() {
+        const self = this;
+        const hash = globalThis.location.hash.replace('#', '');
+        const path = hash.substring(hash.indexOf('/'), hash.indexOf('?') === -1 ? undefined : hash.indexOf('?'));
+        const callbackFunc = this.getCallbackFunc(path);
+        if (callbackFunc) {
+            const rawParams = hash
+                .substring(hash.indexOf('?') + 1 ? hash.indexOf('?') + 1 : hash.length)
+                .split('&');
+            console.log('🚀 ~ file: index.ts ~ line 52 ~ CustomRouter ~ reload ~ rawParams', rawParams);
+            const processed = rawParams.map((paramString) => paramString.split('='));
+            console.log('🚀 ~ file: index.ts ~ line 54 ~ CustomRouter ~ reload ~ processed', processed);
+            /* eslint-disable no-param-reassign */
+            const params = processed.reduce((accu, curr) => {
+                const [key, value] = curr;
+                accu[key] = value;
+                return accu;
+            }, {});
+            /* eslint-enable no-param-reassign */
+            this.queryList[path] = params;
+            callbackFunc.apply(self, processed);
+            console.log('🚀 ~ file: index.ts ~ line 61 ~ CustomRouter ~ reload ~ params', params);
+        }
+        else {
+            self.go(self.index);
+        }
     }
     init() {
-        globalThis.addEventListener('load', this.refresh.bind(this), false);
-        globalThis.addEventListener('hashchange', this.refresh.bind(this), false);
+        const self = this;
+        globalThis.onhashchange = () => {
+            self.reload();
+        };
+    }
+    start() {
+        this.reload();
     }
 }
